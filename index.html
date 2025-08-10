@@ -1,0 +1,571 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kovai Market - Billing Software</title>
+    <style>
+        /* CSS for styling the application */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1, h2, h3 {
+            color: #4CAF50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .total-section {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        /* New styles for formal bill display */
+        .bill-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .bill-header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+        .bill-header h3 {
+            margin: 0;
+            color: #2e7d32;
+        }
+        .bill-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .bill-info div {
+            flex: 1;
+        }
+        .bill-info strong {
+            display: block;
+        }
+        .bill-item-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .bill-item-table th, .bill-item-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #eee;
+        }
+        .bill-item-table th {
+            background-color: #e8f5e9;
+            color: #333;
+        }
+        .bill-summary {
+            text-align: right;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        .bill-summary p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Kovai Market</h1>
+        <p>Location: Coimbatore</p>
+
+        <div class="section">
+            <h2>Product Inventory Management</h2>
+            <div class="form-group">
+                <label for="productName">Product Name:</label>
+                <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="productQuantity">Product Quantity:</label>
+                <input type="number" id="productQuantity" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Product Price (₹):</label>
+                <input type="number" id="productPrice" min="0" step="0.01" required>
+            </div>
+            <button class="btn" id="addProductBtn">Add Product to Inventory</button>
+        </div>
+
+        <hr>
+
+        <div class="section">
+            <h2>Billing</h2>
+            <div class="form-group">
+                <label for="customerName">Customer Name:</label>
+                <input type="text" id="customerName" required>
+            </div>
+            <div class="form-group">
+                <label for="customerMobile">Customer Mobile:</label>
+                <input type="text" id="customerMobile" pattern="[0-9]{10}" title="10 digit number" required>
+            </div>
+
+            <h3>Add Product to Bill</h3>
+            <div class="form-group">
+                <label for="productId">Select Product:</label>
+                <select id="productId"></select>
+            </div>
+            <div class="form-group">
+                <label for="billQuantity">Quantity:</label>
+                <input type="number" id="billQuantity" min="1" value="1">
+            </div>
+            <button class="btn" id="addItemBtn">Add to Bill</button>
+
+            <h3>Bill Details</h3>
+            <table id="billTable">
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Product Name</th>
+                        <th>Price (₹)</th>
+                        <th>Quantity</th>
+                        <th>Total (₹)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+
+            <div class="total-section">
+                <strong>Total Amount: ₹ <span id="billTotal">0.00</span></strong>
+            </div>
+            
+            <button class="btn" id="generateBillBtn">Generate Bill</button>
+        </div>
+        
+        <hr>
+
+        <div class="section">
+            <h2>Sales Reports</h2>
+            <div class="form-group">
+                <label for="reportPeriod">View Sales for:</label>
+                <select id="reportPeriod">
+                    <option value="day">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="year">This Year</option>
+                </select>
+                <button class="btn" id="viewReportBtn">View Report</button>
+            </div>
+            <div id="salesReport">
+                </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        'use strict';
+
+        (function() {
+            let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+            let sales = JSON.parse(localStorage.getItem('sales')) || [];
+            let billItems = [];
+            let nextProductId = 1;
+
+            const productNameInput = document.getElementById('productName');
+            const productQuantityInput = document.getElementById('productQuantity');
+            const productPriceInput = document.getElementById('productPrice');
+            const productIdSelect = document.getElementById('productId');
+            const billQuantityInput = document.getElementById('billQuantity');
+            const billTableBody = document.querySelector('#billTable tbody');
+            const billTotalSpan = document.getElementById('billTotal');
+            const customerNameInput = document.getElementById('customerName');
+            const customerMobileInput = document.getElementById('customerMobile');
+            const reportPeriodSelect = document.getElementById('reportPeriod');
+            const salesReportDiv = document.getElementById('salesReport');
+
+            // Check if all essential elements exist
+            if (!productNameInput || !productQuantityInput || !productPriceInput || !productIdSelect || !billTableBody || !billTotalSpan || !customerNameInput || !customerMobileInput || !reportPeriodSelect || !salesReportDiv) {
+                console.error("One or more essential HTML elements are missing. Please check your index.html file.");
+                return; // Stop script execution
+            }
+
+            function saveData() {
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+                localStorage.setItem('sales', JSON.stringify(sales));
+            }
+
+            function initializeNextProductId() {
+                if (inventory.length > 0) {
+                    const maxId = Math.max(...inventory.map(p => p.id));
+                    nextProductId = maxId + 1;
+                } else {
+                    nextProductId = 1;
+                }
+            }
+
+            function populateProductSelect() {
+                productIdSelect.innerHTML = '<option value="">Select a product...</option>';
+                inventory.forEach(product => {
+                    if (product.quantity > 0) {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        option.textContent = `${product.name} (₹${product.price.toFixed(2)}) - ID: ${product.id}`;
+                        productIdSelect.appendChild(option);
+                    }
+                });
+            }
+
+            function addProductToInventory() {
+                const name = productNameInput.value.trim();
+                const quantity = parseInt(productQuantityInput.value);
+                const price = parseFloat(productPriceInput.value);
+
+                if (name === '' || isNaN(quantity) || quantity <= 0 || isNaN(price) || price <= 0) {
+                    alert('Please enter valid product details (Name, Quantity > 0, Price > 0).');
+                    return;
+                }
+
+                const newProduct = {
+                    id: nextProductId,
+                    name: name,
+                    quantity: quantity,
+                    price: price,
+                };
+                inventory.push(newProduct);
+                nextProductId++;
+                saveData();
+                populateProductSelect();
+                alert(`Product "${name}" added with ID: ${newProduct.id}`);
+                productNameInput.value = '';
+                productQuantityInput.value = '';
+                productPriceInput.value = '';
+            }
+
+            function addItemToBill() {
+                const selectedProductId = parseInt(productIdSelect.value);
+                const quantityToAdd = parseInt(billQuantityInput.value);
+
+                if (!selectedProductId || isNaN(quantityToAdd) || quantityToAdd <= 0) {
+                    alert('Please select a product and enter a valid quantity.');
+                    return;
+                }
+
+                const product = inventory.find(p => p.id === selectedProductId);
+                if (!product) {
+                    alert('Product not found in inventory.');
+                    return;
+                }
+
+                if (product.quantity < quantityToAdd) {
+                    alert(`Not enough stock. Available: ${product.quantity}`);
+                    return;
+                }
+
+                const existingItem = billItems.find(item => item.id === product.id);
+                if (existingItem) {
+                    existingItem.quantity += quantityToAdd;
+                } else {
+                    billItems.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: quantityToAdd
+                    });
+                }
+                renderBill();
+            }
+
+            window.removeItemFromBill = function(productId) {
+                billItems = billItems.filter(item => item.id !== productId);
+                renderBill();
+            };
+
+            function renderBill() {
+                billTableBody.innerHTML = '';
+                let total = 0;
+                billItems.forEach(item => {
+                    const subtotal = item.price * item.quantity;
+                    total += subtotal;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>₹${item.price.toFixed(2)}</td>
+                        <td>${item.quantity}</td>
+                        <td>₹${subtotal.toFixed(2)}</td>
+                        <td><button class="btn btn-small" onclick="removeItemFromBill(${item.id})">Remove</button></td>
+                    `;
+                    billTableBody.appendChild(row);
+                });
+                billTotalSpan.textContent = total.toFixed(2);
+            }
+
+            function generateBill() {
+                if (billItems.length === 0) {
+                    alert('Bill is empty. Please add some items.');
+                    return;
+                }
+                
+                const customerName = customerNameInput.value.trim();
+                const customerMobile = customerMobileInput.value.trim();
+
+                if (!customerName || !customerMobile) {
+                    alert('Please enter customer details.');
+                    return;
+                }
+
+                const billTotal = parseFloat(billTotalSpan.textContent);
+                const billDate = new Date().toISOString();
+
+                billItems.forEach(item => {
+                    const product = inventory.find(p => p.id === item.id);
+                    if (product) {
+                        product.quantity -= item.quantity;
+                    }
+                });
+
+                const salesRecord = {
+                    billId: sales.length + 1,
+                    customerName,
+                    customerMobile,
+                    date: billDate,
+                    items: billItems,
+                    total: billTotal
+                };
+                sales.push(salesRecord);
+                saveData();
+                downloadBillAsPDF(salesRecord);
+
+                billItems = [];
+                renderBill();
+                populateProductSelect();
+                customerNameInput.value = '';
+                customerMobileInput.value = '';
+                alert('Bill generated and saved successfully!');
+            }
+
+            function downloadBillAsPDF(billData) {
+                if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                    alert('PDF generation library not loaded. Please ensure you have an active internet connection.');
+                    return;
+                }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const margin = 20;
+                let y = margin;
+
+                doc.setFontSize(24);
+                doc.text("Kovai Market", 105, y, { align: 'center' });
+                y += 10;
+                doc.setFontSize(12);
+                doc.text("Coimbatore, India", 105, y, { align: 'center' });
+                y += 20;
+
+                doc.setFontSize(16);
+                doc.text("Invoice", margin, y);
+                y += 10;
+                
+                doc.setFontSize(12);
+                doc.text(`Bill No: ${billData.billId}`, margin, y);
+                doc.text(`Date: ${new Date(billData.date).toLocaleString('en-IN')}`, 105, y);
+                y += 10;
+                doc.text(`Customer Name: ${billData.customerName}`, margin, y);
+                doc.text(`Customer Mobile: ${billData.customerMobile}`, 105, y);
+                y += 20;
+
+                doc.autoTable({
+                    startY: y,
+                    head: [['Product Name', 'Quantity', 'Price (₹)', 'Total (₹)']],
+                    body: billData.items.map(item => [
+                        item.name, 
+                        item.quantity, 
+                        `₹${item.price.toFixed(2)}`, 
+                        `₹${(item.price * item.quantity).toFixed(2)}`
+                    ]),
+                    theme: 'grid',
+                    styles: { fontSize: 10, cellPadding: 5 },
+                    headStyles: { fillColor: [76, 175, 80], textColor: 255 },
+                });
+
+                y = doc.autoTable.previous.finalY + 10;
+                doc.setFontSize(14);
+                doc.text(`Total Amount: ₹${billData.total.toFixed(2)}`, 190, y, { align: 'right' });
+                y += 20;
+                doc.text("Thank you for shopping with us!", 105, y, { align: 'center' });
+                doc.save(`KovaiMarket_Bill_${billData.billId}.pdf`);
+            }
+
+            function viewSalesReport() {
+                const period = reportPeriodSelect.value;
+                const now = new Date();
+                let salesDataFiltered = [];
+
+                if (period === 'day') {
+                    salesDataFiltered = sales.filter(s => new Date(s.date).toDateString() === now.toDateString());
+                } else if (period === 'week') {
+                    const oneWeekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                    salesDataFiltered = sales.filter(s => new Date(s.date) >= oneWeekAgo);
+                } else if (period === 'month') {
+                    salesDataFiltered = sales.filter(s => new Date(s.date).getMonth() === now.getMonth() && new Date(s.date).getFullYear() === now.getFullYear());
+                } else if (period === 'year') {
+                    salesDataFiltered = sales.filter(s => new Date(s.date).getFullYear() === now.getFullYear());
+                }
+                
+                let totalSales = 0;
+                salesDataFiltered.forEach(s => totalSales += s.total);
+
+                let reportHtml = `
+                    <h3>Sales for ${period}</h3>
+                    <p><strong>Total Bills:</strong> ${salesDataFiltered.length}</p>
+                    <p><strong>Total Revenue:</strong> ₹${totalSales.toFixed(2)}</p>
+                    <hr>
+                    <h4>All Bills:</h4>
+                `;
+
+                if (salesDataFiltered.length > 0) {
+                    salesDataFiltered.forEach(bill => {
+                        reportHtml += `
+                            <div class="bill-card">
+                                <div class="bill-header">
+                                    <h3>Kovai Market - Bill #${bill.billId}</h3>
+                                </div>
+                                <div class="bill-info">
+                                    <div><strong>Date:</strong> ${new Date(bill.date).toLocaleString('en-IN')}</div>
+                                    <div><strong>Customer:</strong> ${bill.customerName}</div>
+                                    <div><strong>Mobile:</strong> ${bill.customerMobile}</div>
+                                </div>
+                                <table class="bill-item-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Qty</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+                        bill.items.forEach(item => {
+                            reportHtml += `
+                                <tr>
+                                    <td>${item.name}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>₹${item.price.toFixed(2)}</td>
+                                    <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+                                </tr>
+                            `;
+                        });
+                        reportHtml += `
+                                    </tbody>
+                                </table>
+                                <div class="bill-summary">
+                                    <p><strong>Total:</strong> ₹${bill.total.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    reportHtml += '<p>No sales found for this period.</p>';
+                }
+
+                salesReportDiv.innerHTML = reportHtml;
+            }
+
+            // Event Listeners for buttons
+            document.getElementById('addProductBtn').addEventListener('click', addProductToInventory);
+            document.getElementById('addItemBtn').addEventListener('click', addItemToBill);
+            document.getElementById('generateBillBtn').addEventListener('click', generateBill);
+            document.getElementById('viewReportBtn').addEventListener('click', viewSalesReport);
+            
+            // Initial setup function
+            function init() {
+                initializeNextProductId();
+                populateProductSelect();
+            }
+            init();
+
+        })();
+    </script>
+</body>
+</html>
